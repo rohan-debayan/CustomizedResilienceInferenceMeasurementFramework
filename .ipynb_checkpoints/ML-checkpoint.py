@@ -266,4 +266,4 @@ def perform_xgb(splits, train_X_key, train_y_key, test_X_key, test_y_key, df):
     plt.show()
 
 
-    return xgb_best, importances
+    return xgb_best, feature_importances
