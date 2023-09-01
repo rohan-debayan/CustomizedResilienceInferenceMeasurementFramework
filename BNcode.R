@@ -164,7 +164,7 @@ min_row <- performance_df[min_row_index, ]
 test <- min_row$Test
 alpha <- min_row$Alpha
 
-bn <- boot.strength(trainData, R = 20, m = nrow(trainData), algorithm = "pc.stable", algorithm.args = list(blacklist = black.list, test=test, alpha = alpha), cluster = cl, debug = FALSE)
+bn <- boot.strength(trainData, R = 1, m = nrow(trainData), algorithm = "pc.stable", algorithm.args = list(blacklist = black.list, test=test, alpha = alpha), cluster = cl, debug = FALSE)
 avg.diff = averaged.network(bn)
 
 ## Removing undirected arcs
