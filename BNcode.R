@@ -18,9 +18,9 @@ library(caret)
 cl <- makeCluster(detectCores() - 1) 
 registerDoParallel(cl)
 #Input
-score_var = "YA_Value"
+score_var = "YR_Value"
 #Input
-score <- as.data.frame(read_excel("G:/Shared drives/VISA 689  Digital Twin/parallelR/Input_CD_Trial.xlsx"))
+score <- as.data.frame(read_excel("Input_Resilience.xlsx"))
 score <- na.omit(score)
 
 # Convert all columns to numeric
@@ -73,7 +73,7 @@ tests <- c('cor','mc-cor','smc-cor','zf','mc-zf','smc-zf','mi-g','mc-mi-g','smc-
 alphas <- c(0.001,0.005,0.01,0.05,0.1)
 
 set.seed(42)
-trainIndex <- createDataPartition(score$YA_Value, p = 0.8, list = FALSE)
+trainIndex <- createDataPartition(score$YR_Value, p = 0.8, list = FALSE)
 trainData <- score[trainIndex, ]
 testData <- score[-trainIndex, ]
 
@@ -164,8 +164,30 @@ min_row <- performance_df[min_row_index, ]
 test <- min_row$Test
 alpha <- min_row$Alpha
 
-bn <- boot.strength(trainData, R = 100, m = nrow(trainData), algorithm = "pc.stable", algorithm.args = list(blacklist = black.list, test=test, alpha = alpha), cluster = cl, debug = FALSE)
+bn <- boot.strength(trainData, R = 20, m = nrow(trainData), algorithm = "pc.stable", algorithm.args = list(blacklist = black.list, test=test, alpha = alpha), cluster = cl, debug = FALSE)
 avg.diff = averaged.network(bn)
+
+## Removing undirected arcs
+undirected_arcs <- undirected.arcs(avg.diff)
+if(length(undirected_arcs) > 0){
+  for (i in 1:nrow(undirected_arcs)) {
+    from_node <- undirected_arcs[i, 1]
+    to_node <- undirected_arcs[i, 2]
+    avg.diff = drop.arc(avg.diff, from=from_node, to=to_node)
+  }
+}
+
+## Capturing Directed Arcs
+arcs <- c()
+directed_arcs <- directed.arcs(avg.diff)
+for (i in 1:nrow(directed_arcs)) {
+  arc <- c(directed_arcs[i, 1],directed_arcs[i, 2])
+  arcs <- c(arcs,arc)
+}
+dircted_arcs <- matrix(arcs, ncol=2, byrow=TRUE)
+colnames(dircted_arcs) <- c("From", "To")
+write.csv(dircted_arcs, file = "Resilience_Directed_Arcs.csv", row.names = FALSE)
+
 fitted_bn <- bn.fit(avg.diff, data = score)
 pred <- predict(fitted_bn, node=score_var, testData)
 
@@ -175,8 +197,8 @@ rmse <- sqrt(mean(diff[[score_var]]^2))
 mse <- mean(diff[[score_var]]^2)
 mae <- mean(abs(diff[[score_var]]))
 
-parents <- fitted_bn$YA_Value$parents
-coeff <- (fitted_bn$YA_Value$coefficients)
+parents <- fitted_bn$YR_Value$parents
+coeff <- (fitted_bn$YR_Value$coefficients)
 
 results <- c()
 for (i in 2:length(coeff)){
@@ -184,9 +206,23 @@ for (i in 2:length(coeff)){
   results <- c(results, pair)
 }
 
+options(digits = 10)
+ 
+print(rmse)
+print(mse)
+print(mae)
+
+metrics <- c(rmse,mse,mae)
+metrics <- matrix(metrics, ncol=3, byrow=TRUE)
+colnames(metrics) <- c("RMSE", "MSE", "MAE")
+write.csv(metrics, file = "Resilience_Metrics.csv", row.names = FALSE)
+
+#print(diff)
+#print(fitted_bn)
+
 results <- matrix(results, ncol=2, byrow=TRUE)
 colnames(results) <- c("Variable", "Coefficient")
-write.csv(results, file = "G:/Shared drives/VISA 689  Digital Twin/parallelR/PC_Stable_Results_Trial.csv", row.names = FALSE)
+write.csv(results, file = "Resilience_PC_Stable_Results.csv", row.names = FALSE)
 
 # Stop the cluster
 stopCluster(cl)

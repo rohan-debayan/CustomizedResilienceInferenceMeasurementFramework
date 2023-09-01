@@ -1,0 +1,35 @@
+{
+    "name": "CRIM",
+    "description": "Customized Resilience Inference Measurement Framework",
+    "estimated_runtime": "vary by model size, simulation period and configurations",
+    "container": "r-base",
+    "pre_processing_stage": "",
+    "execution_stage": "Rscript BNcode.R",
+    "post_processing_stage": "",
+    "slurm_input_rules": {
+
+        "time": {
+                "max": 10,
+                "min": 1,
+                "default_value": 1,
+                "step": 1,
+                "unit": "Hours"
+            },
+            "num_of_task": {
+                "max": 32,
+                "min": 1,
+                "default_value": 16,
+                "step": 1
+            },
+            "memory_per_cpu": {
+                "max": 4,
+                "min": 1,
+                "default_value": 2,
+                "step": 1,
+                "unit": "GB"
+            }
+    },
+    "require_upload_data": true,
+    "supported_hpc": ["keeling_community", "expanse_community"],
+    "default_hpc": "keeling_community"
+}
