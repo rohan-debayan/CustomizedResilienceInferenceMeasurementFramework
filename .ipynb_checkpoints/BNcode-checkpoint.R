@@ -21,7 +21,7 @@ registerDoParallel(cl)
 score_var = "Score"
 #Input
 data_dir <- Sys.getenv("data_folder")
-score <- as.data.frame(read_excel(paste(data_dir, "Input_Resilience.xlsx", sep="/"))
+score <- as.data.frame(read_excel(paste(data_dir, "Input_Data.xlsx", sep="/"))
 score <- as.data.frame(read_excel("Input_Data.xlsx"))
 score <- na.omit(score)
 
@@ -224,7 +224,7 @@ write.csv(metrics, file = "Resilience_Metrics.csv", row.names = FALSE)
 
 results <- matrix(results, ncol=2, byrow=TRUE)
 colnames(results) <- c("Variable", "Coefficient")
-write.csv(results, file = "Resilience_PC_Stable_Results.csv", row.names = FALSE)
+write.csv(results, file = "Resilience_Results.csv", row.names = FALSE)
 
 # Stop the cluster
 stopCluster(cl)
