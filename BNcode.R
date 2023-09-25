@@ -18,11 +18,11 @@ library(caret)
 cl <- makeCluster(detectCores() - 1) 
 registerDoParallel(cl)
 #Input
-score_var = "YR_Value"
+score_var = "Score"
 #Input
 data_dir <- Sys.getenv("data_folder")
 score <- as.data.frame(read_excel(paste(data_dir, "Input_Resilience.xlsx", sep="/"))
-score <- as.data.frame(read_excel("Input_Resilience.xlsx"))
+score <- as.data.frame(read_excel("Input_Data.xlsx"))
 score <- na.omit(score)
 
 # Convert all columns to numeric
