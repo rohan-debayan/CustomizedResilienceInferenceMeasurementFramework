@@ -2,7 +2,7 @@
     "name": "CRIM",
     "description": "Customized Resilience Inference Measurement Framework",
     "estimated_runtime": "vary by model size, simulation period and configurations",
-    "container": "r-base",
+    "container": "gearlab-r",
     "pre_processing_stage": "",
     "execution_stage": "Rscript BNcode.R",
     "post_processing_stage": "",
