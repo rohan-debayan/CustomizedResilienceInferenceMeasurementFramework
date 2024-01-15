@@ -20,9 +20,12 @@ registerDoParallel(cl)
 #Input
 score_var = "Score"
 #Input
-data_dir <- Sys.getenv("data_folder")
-score <- as.data.frame(read_excel(paste(data_dir, "Input_Data.xlsx", sep="/"))
-score <- as.data.frame(read_excel("Input_Data.xlsx"))
+#score <- as.data.frame(read_excel("Input_Data.xlsx"))
+#score <- na.omit(score)
+
+data_dir <- getwd()
+file_path <- paste0(data_dir, "/Input_Data.xlsx")
+score <- as.data.frame(read_excel(file_path))
 score <- na.omit(score)
 
 # Convert all columns to numeric
@@ -75,7 +78,7 @@ tests <- c('cor','mc-cor','smc-cor','zf','mc-zf','smc-zf','mi-g','mc-mi-g','smc-
 alphas <- c(0.001,0.005,0.01,0.05,0.1)
 
 set.seed(42)
-trainIndex <- createDataPartition(score$YR_Value, p = 0.8, list = FALSE)
+trainIndex <- createDataPartition(score$Score, p = 0.8, list = FALSE)
 trainData <- score[trainIndex, ]
 testData <- score[-trainIndex, ]
 
@@ -166,8 +169,9 @@ min_row <- performance_df[min_row_index, ]
 test <- min_row$Test
 alpha <- min_row$Alpha
 
-bn <- boot.strength(trainData, R = 1, m = nrow(trainData), algorithm = "pc.stable", algorithm.args = list(blacklist = black.list, test=test, alpha = alpha), cluster = cl, debug = FALSE)
+bn <- boot.strength(trainData, R = 50, m = nrow(trainData), algorithm = "pc.stable", algorithm.args = list(blacklist = black.list, test=test, alpha = alpha), cluster = cl, debug = FALSE)
 avg.diff = averaged.network(bn)
+saveRDS(avg.diff, file = "Multihazard_AllCounty_Adaptability.rds")
 
 ## Removing undirected arcs
 undirected_arcs <- undirected.arcs(avg.diff)
@@ -188,7 +192,7 @@ for (i in 1:nrow(directed_arcs)) {
 }
 dircted_arcs <- matrix(arcs, ncol=2, byrow=TRUE)
 colnames(dircted_arcs) <- c("From", "To")
-write.csv(dircted_arcs, file = "Resilience_Directed_Arcs.csv", row.names = FALSE)
+write.csv(dircted_arcs, file = "Adaptability_Directed_Arcs.csv", row.names = FALSE)
 
 fitted_bn <- bn.fit(avg.diff, data = score)
 pred <- predict(fitted_bn, node=score_var, testData)
@@ -199,8 +203,8 @@ rmse <- sqrt(mean(diff[[score_var]]^2))
 mse <- mean(diff[[score_var]]^2)
 mae <- mean(abs(diff[[score_var]]))
 
-parents <- fitted_bn$YR_Value$parents
-coeff <- (fitted_bn$YR_Value$coefficients)
+parents <- fitted_bn$Score$parents
+coeff <- (fitted_bn$Score$coefficients)
 
 results <- c()
 for (i in 2:length(coeff)){
@@ -217,14 +221,14 @@ print(mae)
 metrics <- c(rmse,mse,mae)
 metrics <- matrix(metrics, ncol=3, byrow=TRUE)
 colnames(metrics) <- c("RMSE", "MSE", "MAE")
-write.csv(metrics, file = "Resilience_Metrics.csv", row.names = FALSE)
+write.csv(metrics, file = "Adaptability_Metrics.csv", row.names = FALSE)
 
 #print(diff)
 #print(fitted_bn)
 
 results <- matrix(results, ncol=2, byrow=TRUE)
 colnames(results) <- c("Variable", "Coefficient")
-write.csv(results, file = "Resilience_Results.csv", row.names = FALSE)
+write.csv(results, file = "Adaptability_PC_Stable_Results.csv", row.names = FALSE)
 
 # Stop the cluster
 stopCluster(cl)
