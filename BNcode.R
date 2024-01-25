@@ -19,7 +19,7 @@ cl <- makeCluster(detectCores() - 1)
 registerDoParallel(cl)
 #Input
 score_var = "Score"
-inp <- Sys.getenv(“data_folder”)
+inp <- Sys.getenv("data_folder")
 
 data_dir <- inp
 file_path <- file.path(data_dir, "Input_Data.xlsx")
@@ -27,7 +27,7 @@ score <- as.data.frame(read_excel(file_path))
 score <- na.omit(score)
 
 #Output
-res <- Sys.getenv(“result_folder”)
+res <- Sys.getenv("result_folder")
 
 # Convert all columns to numeric
 score <- as.data.frame(lapply(score, as.numeric))
