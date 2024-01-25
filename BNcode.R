@@ -19,14 +19,15 @@ cl <- makeCluster(detectCores() - 1)
 registerDoParallel(cl)
 #Input
 score_var = "Score"
-#Input
-#score <- as.data.frame(read_excel("Input_Data.xlsx"))
-#score <- na.omit(score)
+inp <- Sys.getenv(“data_folder”)
 
-data_dir <- getwd()
-file_path <- paste0(data_dir, "/Input_Data.xlsx")
+data_dir <- inp
+file_path <- file.path(data_dir, "Input_Data.xlsx")
 score <- as.data.frame(read_excel(file_path))
 score <- na.omit(score)
+
+#Output
+res <- Sys.getenv(“result_folder”)
 
 # Convert all columns to numeric
 score <- as.data.frame(lapply(score, as.numeric))
@@ -171,7 +172,8 @@ alpha <- min_row$Alpha
 
 bn <- boot.strength(trainData, R = 50, m = nrow(trainData), algorithm = "pc.stable", algorithm.args = list(blacklist = black.list, test=test, alpha = alpha), cluster = cl, debug = FALSE)
 avg.diff = averaged.network(bn)
-saveRDS(avg.diff, file = "Multihazard_AllCounty_Adaptability.rds")
+file_path <- file.path(res, "Multihazard_AllCounty_Adaptability.rds")
+saveRDS(avg.diff, file = file_path)
 
 ## Removing undirected arcs
 undirected_arcs <- undirected.arcs(avg.diff)
@@ -192,7 +194,8 @@ for (i in 1:nrow(directed_arcs)) {
 }
 dircted_arcs <- matrix(arcs, ncol=2, byrow=TRUE)
 colnames(dircted_arcs) <- c("From", "To")
-write.csv(dircted_arcs, file = "Adaptability_Directed_Arcs.csv", row.names = FALSE)
+file1_path <- file.path(res, "Directed_Arcs.csv")
+write.csv(dircted_arcs, file = file1_path, row.names = FALSE)
 
 fitted_bn <- bn.fit(avg.diff, data = score)
 pred <- predict(fitted_bn, node=score_var, testData)
@@ -221,14 +224,16 @@ print(mae)
 metrics <- c(rmse,mse,mae)
 metrics <- matrix(metrics, ncol=3, byrow=TRUE)
 colnames(metrics) <- c("RMSE", "MSE", "MAE")
-write.csv(metrics, file = "Adaptability_Metrics.csv", row.names = FALSE)
+file2_path <- file.path(res, "Metrics.csv")
+write.csv(metrics, file = file2_path, row.names = FALSE)
 
 #print(diff)
 #print(fitted_bn)
 
 results <- matrix(results, ncol=2, byrow=TRUE)
 colnames(results) <- c("Variable", "Coefficient")
-write.csv(results, file = "Adaptability_PC_Stable_Results.csv", row.names = FALSE)
+file3_path <- file.path(res, "Results.csv")
+write.csv(results, file = file3_path, row.names = FALSE)
 
 # Stop the cluster
 stopCluster(cl)
