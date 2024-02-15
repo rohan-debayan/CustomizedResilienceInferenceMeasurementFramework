@@ -172,7 +172,7 @@ alpha <- min_row$Alpha
 
 bn <- boot.strength(trainData, R = 50, m = nrow(trainData), algorithm = "pc.stable", algorithm.args = list(blacklist = black.list, test=test, alpha = alpha), cluster = cl, debug = FALSE)
 avg.diff = averaged.network(bn)
-file_path <- file.path(res, "Multihazard_AllCounty_Adaptability.rds")
+file_path <- file.path(res, "Model.rds")
 saveRDS(avg.diff, file = file_path)
 
 ## Removing undirected arcs
