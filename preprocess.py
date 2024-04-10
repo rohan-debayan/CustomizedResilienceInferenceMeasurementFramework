@@ -186,10 +186,12 @@ def empfac(fn: pd.DataFrame, widget_dict: Dict[str, Any]) -> pd.DataFrame:
     # Min Max Scaling
     edr_tot['Normalized_Damage'] = (edr_tot['DamageRIM'] - edr_tot['DamageRIM'].min()) / (edr_tot['DamageRIM'].max() - edr_tot['DamageRIM'].min())
     edr_tot['Normalized_Recovery'] = (edr_tot['Recovery'] - edr_tot['Recovery'].min()) / (edr_tot['Recovery'].max() - edr_tot['Recovery'].min())
+    #Ver1
+    edr_tot['Normalized_Exposure'] = (edr_tot['Exposure'] - edr_tot['Exposure'].min()) / (edr_tot['Exposure'].max() - edr_tot['Exposure'].min())
 
     # Vulnerability
-    edr_tot['Vul'] = edr_tot['DamageRIM'] - edr_tot['Exposure']
-    edr_tot['NVul'] = (edr_tot['Vul'] - edr_tot['Vul'].min()) / (edr_tot['Vul'].max() - edr_tot['Vul'].min())
+    #edr_tot['Vul'] = edr_tot['DamageRIM'] - edr_tot['Exposure']
+    #edr_tot['NVul'] = (edr_tot['Vul'] - edr_tot['Vul'].min()) / (edr_tot['Vul'].max() - edr_tot['Vul'].min())
     edr_tot_uniq = edr_tot.drop_duplicates()
     return edr_tot_uniq
 
@@ -197,7 +199,9 @@ def empfac(fn: pd.DataFrame, widget_dict: Dict[str, Any]) -> pd.DataFrame:
 def disres(edr_tot: pd.DataFrame) -> pd.DataFrame:
     edr_tot['Adaptability'] = edr_tot['Normalized_Recovery'] -edr_tot['Normalized_Damage']
     edr_tot['NAdap'] = (edr_tot['Adaptability'] - edr_tot['Adaptability'].min()) / (edr_tot['Adaptability'].max() - edr_tot['Adaptability'].min())
-    edr_tot['Vulnerability'] = edr_tot['NVul']
+    #Ver1
+    edr_tot['Vulnerability'] = edr_tot['Normalized_Damage'] -edr_tot['Normalized_Exposure']
+    #edr_tot['Vulnerability'] = edr_tot['NVul']
     edr_tot['Resilience'] = edr_tot['NAdap'] - edr_tot['NVul']
 
     columns_to_quantize = ['Adaptability', 'Vulnerability', 'Resilience']
