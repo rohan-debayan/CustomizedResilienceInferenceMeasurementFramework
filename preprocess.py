@@ -198,11 +198,11 @@ def empfac(fn: pd.DataFrame, widget_dict: Dict[str, Any]) -> pd.DataFrame:
 
 def disres(edr_tot: pd.DataFrame) -> pd.DataFrame:
     edr_tot['Adaptability'] = edr_tot['Normalized_Recovery'] -edr_tot['Normalized_Damage']
-    edr_tot['NAdap'] = (edr_tot['Adaptability'] - edr_tot['Adaptability'].min()) / (edr_tot['Adaptability'].max() - edr_tot['Adaptability'].min())
+    #edr_tot['NAdap'] = (edr_tot['Adaptability'] - edr_tot['Adaptability'].min()) / (edr_tot['Adaptability'].max() - edr_tot['Adaptability'].min())
     #Ver1
     edr_tot['Vulnerability'] = edr_tot['Normalized_Damage'] -edr_tot['Normalized_Exposure']
     #edr_tot['Vulnerability'] = edr_tot['NVul']
-    edr_tot['Resilience'] = edr_tot['NAdap'] - edr_tot['NVul']
+    edr_tot['Resilience'] = edr_tot['Adaptability'] - edr_tot['Vulnerability']
 
     columns_to_quantize = ['Adaptability', 'Vulnerability', 'Resilience']
     for col in columns_to_quantize:
